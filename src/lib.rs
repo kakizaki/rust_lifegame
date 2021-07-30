@@ -59,7 +59,7 @@ impl LifeGame {
         }
 
         return match lifes[i] {
-            Life::Living => 1,
+            Life::Living(_) => 1,
             Life::Death => 0
         };
     }

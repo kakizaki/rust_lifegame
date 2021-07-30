@@ -1,7 +1,6 @@
 
 extern crate lifegame;
 
-use std::io;
 use std::{thread, time};
 use rand::prelude::*;
 
@@ -16,6 +15,7 @@ fn main() {
     init_lifes__random(&mut l);
         
     AnsiEscape::clear_screen();
+    AnsiEscape::hide_cursor();
 
     loop {
         AnsiEscape::move_to_top();
@@ -34,13 +34,13 @@ fn main() {
 
 fn init_lifes(l: &mut LifeGame) {
     
-    l.lifes[3][3] = Life::Living;
-    l.lifes[4][3] = Life::Living;
-    l.lifes[3][4] = Life::Living;
+    l.lifes[3][3] = Life::birth();
+    l.lifes[4][3] = Life::birth();
+    l.lifes[3][4] = Life::birth();
     
-    l.lifes[6][5] = Life::Living;
-    l.lifes[6][6] = Life::Living;
-    l.lifes[5][6] = Life::Living;
+    l.lifes[6][5] = Life::birth();
+    l.lifes[6][6] = Life::birth();
+    l.lifes[5][6] = Life::birth();
 }
 
 
@@ -53,7 +53,7 @@ fn init_lifes__random(l: &mut LifeGame) {
     for i in 0..size {
         let x = rng.gen_range(0..l.x_size);
         let y = rng.gen_range(0..l.y_size);
-        l.lifes[x][y] = Life::Living;
+        l.lifes[x][y] = Life::birth();
     }
 }
 
@@ -65,7 +65,7 @@ fn render(l: &LifeGame) {
         for n in m.iter() {
             let c = match n {
                 Life::Death => ' ',
-                Life::Living => '█'
+                Life::Living(n) => *n
             };
             print!("{}", c);
         }
@@ -102,8 +102,12 @@ impl AnsiEscape {
         print!("\x1b[0;0H");
     }
 
-    fn hide() {
-        print!("\x1b[8m");
+    fn show_cursor() {
+        print!("\x1b[?25h");
+    }
+
+    fn hide_cursor() {
+        print!("\x1b[?25l");
     }
 }
 
