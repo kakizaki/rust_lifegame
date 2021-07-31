@@ -5,17 +5,17 @@ use std::{thread, time};
 use rand::prelude::*;
 
 use lifegame::LifeGame;
-use lifegame::Life;
+use lifegame::Cell;
 
 
 fn main() {
     let mut l = LifeGame::new();
 
     //init_lifes(&mut l);
-    init_lifes__random(&mut l);
+    init_lifes_random(&mut l);
         
     AnsiEscape::clear_screen();
-    AnsiEscape::hide_cursor();
+    //AnsiEscape::hide_cursor();
 
     loop {
         AnsiEscape::move_to_top();
@@ -23,37 +23,39 @@ fn main() {
         render(&l);
 
         thread::sleep(time::Duration::from_secs(1));
-        // let mut s = String::new();
-        // io::stdin().read_line(&mut s)
-        //     .expect("failed to read line");
 
-        l.update();
+        if l.update() == false {
+            break;
+        }
     }
 }
 
 
 fn init_lifes(l: &mut LifeGame) {
+    let c = l.generate_character();
+
+    l.cells[3][3] = Cell::Life(c);
+    l.cells[4][3] = Cell::Life(c);
+    l.cells[3][4] = Cell::Life(c);
     
-    l.lifes[3][3] = Life::birth();
-    l.lifes[4][3] = Life::birth();
-    l.lifes[3][4] = Life::birth();
-    
-    l.lifes[6][5] = Life::birth();
-    l.lifes[6][6] = Life::birth();
-    l.lifes[5][6] = Life::birth();
+    l.cells[6][5] = Cell::Life(c);
+    l.cells[6][6] = Cell::Life(c);
+    l.cells[5][6] = Cell::Life(c);
 }
 
 
-fn init_lifes__random(l: &mut LifeGame) {
-  
+fn init_lifes_random(l: &mut LifeGame) {
     let mut rng = rand::thread_rng();
+    let c = l.generate_character();
 
-    let size = l.x_size * l.y_size / 4;
-
-    for i in 0..size {
-        let x = rng.gen_range(0..l.x_size);
-        let y = rng.gen_range(0..l.y_size);
-        l.lifes[x][y] = Life::birth();
+    for x in 0..l.x_size {
+        for y in 0..l.y_size {
+            if rng.gen_range(0..10) < 3 {
+                l.cells[x][y] = Cell::Life(c);
+            } else {
+                l.cells[x][y] = Cell::Death;
+            }
+        }
     }
 }
 
@@ -61,30 +63,16 @@ fn init_lifes__random(l: &mut LifeGame) {
 
 fn render(l: &LifeGame) {
 
-    for m in l.lifes.iter() {
+    for m in l.cells.iter() {
         for n in m.iter() {
             let c = match n {
-                Life::Death => ' ',
-                Life::Living(n) => *n
+                Cell::Death => ' ',
+                Cell::Life(n) => *n
             };
             print!("{}", c);
         }
         println!("");
     }
-
-    // for h in 0..l.h {
-    //     for w in 0..l.w {
-    //         let c = if l.lifes[w][h] == Life::Death {
-    //             ' '
-    //         } else {
-	// 			'█'
-	// 			//'*'
-    //         };
-    //         print!("{}", c);
-    //     }
-
-    //     println!("");
-    // }
 }
 
 
